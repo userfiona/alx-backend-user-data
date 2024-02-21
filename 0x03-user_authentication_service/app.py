@@ -31,26 +31,6 @@ def register():
 
         
 # /login display login form 
-@app.route('/login', methods = ['GET', 'POST'])  
-  
-# login function verify username and password 
-def login():      
-   error = None
-
-   email = request.form.get("email")
-   password = request.form.get("password")
-     
-   if request.method == 'POST': 
-      if request.form['username'] != 'admin' or \ 
-         request.form['password'] != 'admin': 
-         error = 'Invalid username or password. Please try again !'
-      else: 
-  
-         # flashes on successful login 
-         flash('You were successfully logged in')  
-         return redirect(url_for('index')) 
-   return render_template('login.html', error = error) 
-
 @app.route("/sessions", methods=["POST"])
 def login():
     """ Login endpoint
