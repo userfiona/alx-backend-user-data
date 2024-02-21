@@ -16,18 +16,20 @@ def ReturnJSON():
     return jsonify({"message": "Bienvenue"})
 
 # Make a register session for registration
-# session and also connect to Mysql to code for access
-# login and for completing our login
-# session and making some flashing massage for error
-@app.route('/register', methods=['GET', 'POST'])
-def register():
-    message = ''
-    if request.method == 'POST' and 'name' in
-        request.form and 'password' in request.form
-            and 'email' in request.form:
-
-       password = request.form['password']
-        email = request.form['email']
+@app.route("/users", methods=["POST"])
+def users():
+    """ New user signup endpoint
+        Form fields:
+            - email
+            - password
+    """
+    email = request.form.get("email")
+    password = request.form.get("password")
+    try:
+        AUTH.register_user(email, password)
+        return jsonify({"email": email, "message": "user created"})
+    except ValueError:
+        return jsonify({"message": "email already registered"}), 400
 
         
 # /login display login form 
@@ -51,28 +53,20 @@ def login():
     return response
 
  # Make function for logout session
-@app.route('/logout')
+@app.route("/sessions", methods=["DELETE"])
 def logout():
-    session.pop('loggedin', None)
-    session.pop('userid', None)
-    session.pop('email', None)
-    return redirect(url_for('login'))
- @app.route('/profile', methods=['GET'])
-def profile():
+    """ Logout endpoint
+        Return:
+            - redirect to home page
     """
-    Finds user if existing in session or abort
-    """
-    session_id = request.cookies.get('session_id')
+    session_id = request.cookies.get("session_id")
     user = AUTH.get_user_from_session_id(session_id)
-    if user:
-        return jsonify({"email": user.email}), 200
-    abort(403)
+    if not user:
+        abort(403)
+    AUTH.destroy_session(user.id)
+    return redirect(url_for("home"))
 
-
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port="5000")
-
-    @app.route("/profile")
+@app.route("/profile")
 def profile() -> str:
     """ User profile endpoint
         Return:
