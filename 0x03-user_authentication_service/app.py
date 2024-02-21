@@ -2,37 +2,24 @@
 """
 Flask app
 """
-
 from auth import Auth
 from flask import Flask, abort, jsonify, request, redirect, url_for
 
 app = Flask(__name__)
+app.url_map.strict_slashes = False
+app.config["JSONIFY_PRETTYPRINT_REGULAR"] = True
+AUTH = Auth()
 
-@app.route('/path_of_the_response', methods = ['GET'])
-def ReturnJSON():
-     """
-    Index route that returns a json paylod
+
+@app.route("/")
+def home() -> str:
+    """ Home endpoint
+        Return:
+            - Logout message JSON represented
     """
     return jsonify({"message": "Bienvenue"})
 
-# Make a register session for registration
-@app.route("/users", methods=["POST"])
-def users():
-    """ New user signup endpoint
-        Form fields:
-            - email
-            - password
-    """
-    email = request.form.get("email")
-    password = request.form.get("password")
-    try:
-        AUTH.register_user(email, password)
-        return jsonify({"email": email, "message": "user created"})
-    except ValueError:
-        return jsonify({"message": "email already registered"}), 400
 
-        
-# /login display login form 
 @app.route("/sessions", methods=["POST"])
 def login():
     """ Login endpoint
@@ -52,7 +39,7 @@ def login():
     response.set_cookie("session_id", session_id)
     return response
 
- # Make function for logout session
+
 @app.route("/sessions", methods=["DELETE"])
 def logout():
     """ Logout endpoint
@@ -66,6 +53,23 @@ def logout():
     AUTH.destroy_session(user.id)
     return redirect(url_for("home"))
 
+
+@app.route("/users", methods=["POST"])
+def users():
+    """ New user signup endpoint
+        Form fields:
+            - email
+            - password
+    """
+    email = request.form.get("email")
+    password = request.form.get("password")
+    try:
+        AUTH.register_user(email, password)
+        return jsonify({"email": email, "message": "user created"})
+    except ValueError:
+        return jsonify({"message": "email already registered"}), 400
+
+
 @app.route("/profile")
 def profile() -> str:
     """ User profile endpoint
@@ -77,8 +81,7 @@ def profile() -> str:
     user = AUTH.get_user_from_session_id(session_id)
     if not user:
         abort(403)
-    return jsonify({"email": user.email}i)
-
+    return jsonify({"email": user.email})
 
 
 @app.route("/reset_password", methods=["POST"])
