@@ -30,32 +30,23 @@ def register():
         email = request.form['email']
 
         
-@app.route('/')
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    message = ''
-    if request.method == 'POST' and 'email' in
-    request.form and 'password' in request.form:
-        email = request.form['email']
-        password = request.form['password']
-        cursor = mysql.connection.cursor
-                (MySQLdb.cursors.DictCursor)
-        cursor.execute(
-            'SELECT * FROM user WHERE email = % s AND password = % s',
-                  (email, password, ))
-        user = cursor.fetchone()
-        if user:
-            session['loggedin'] = True
-            session['userid'] = user['userid']
-            session['name'] = user['name']
-            session['email'] = user['email']
-            message = 'Logged in successfully !'
-            return render_template('user.html',
-                                   message=message)
-        else:
-            message = 'Please enter correct email / password !'
-    return render_template('login.html',
-                           message=message)
+# /login display login form 
+@app.route('/login', methods = ['GET', 'POST'])  
+  
+# login function verify username and password 
+def login():      
+   error = None
+     
+   if request.method == 'POST': 
+      if request.form['username'] != 'admin' or \ 
+         request.form['password'] != 'admin': 
+         error = 'Invalid username or password. Please try again !'
+      else: 
+  
+         # flashes on successful login 
+         flash('You were successfully logged in')  
+         return redirect(url_for('index')) 
+   return render_template('login.html', error = error) 
 
  # Make function for logout session
 @app.route('/logout')
